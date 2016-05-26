@@ -5,14 +5,15 @@ using System.Collections;
 public class Character : MonoBehaviour {
 
 	public enum enum_Direction{
-		UP,
-		UPPERRIGHT,
-		RIGHT,
-		UNDERRIGHT,
-		UNDER,
-		UNDERLEFT,
-		LEFT,
-		UPPERLEFT
+		UPPERLEFT=0,
+		UP=1,
+		UPPERRIGHT=3,
+		LEFT=4,
+		//(処理の都合上5は空ける)
+		RIGHT = 6,
+		UNDERLEFT = 7,
+		UNDER = 8,
+		UNDERRIGHT = 9
 	}
 
 	public enum enum_State{
@@ -21,12 +22,13 @@ public class Character : MonoBehaviour {
 		ATTACK
 	}
 
-	private float actSpeed = 1f;
+	private float actSpeed = .5f;
 	private bool isAnimate;
 
 	private enum_Direction _direction;
 	private enum_State _state;
 	private Animator _myAnim;
+
 
 	Vector3 moveAmount = Vector3.zero;
 

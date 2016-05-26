@@ -151,7 +151,7 @@ public class StageGenerator : MonoBehaviour {
 	private enum_JointSetting _jointSetting;
 
 
-
+	private StageInformation stgInfo;
 
 	/// <summary>
 	/// ステージの縦横の長さ（正方形)
@@ -207,8 +207,9 @@ public class StageGenerator : MonoBehaviour {
 		InitStage();
 		GenerateWall ();
 		GenerateFloor ();
-		StageInformation stgInfo = _stage.GetComponent<StageInformation>();
+		stgInfo = _stage.GetComponent<StageInformation>();
 		stgInfo._groundTypeList = _groundTypeList;
+		SetRoomInfoList();
 		return _stage;
 	}
 
@@ -324,7 +325,6 @@ public class StageGenerator : MonoBehaviour {
 		//まずは水平ボーダーから連結
 		for (int i = 0; i < _horizontalBorderInfoList.Count; i++) {
 			for (int j = 0; j < _roomInfoList.Count; j++) {
-				//Debug.Log ("borderY=" + _horizontalBorderInfoList [i].Sy() + "borderX=" + _horizontalBorderInfoList[i].Sx()+"borderLength="+_horizontalBorderInfoList[i].Length()+":frameSy=" + _roomInfoList [j].Framesy () + ":frameEy=" + _roomInfoList [j].Frameey () + ":frameSx=" + _roomInfoList[i].Framesx() + ":frameEx=" + _roomInfoList[i].Frameex());
 				//対象ボーダーのx座標において範囲内かどうか判定
 				if (_horizontalBorderInfoList [i].Sx() <= _roomInfoList [j].Framesx() && _horizontalBorderInfoList [i].Ex () >= _roomInfoList [j].Frameex ()) {
 					//境界線の上に属するかチェック
@@ -347,10 +347,7 @@ public class StageGenerator : MonoBehaviour {
 		_jointRoomInfoList_second.Clear ();
 		//次に垂直ボーダを連結
 		for (int i = 0; i < _verticalBorderInfoList.Count; i++) {
-
 			for (int j = 0; j < _roomInfoList.Count; j++) {
-				Debug.Log ("borderSy=" + _verticalBorderInfoList [i].Sy () + "～" + _verticalBorderInfoList [i].Ey () + ":roomSy=" + _roomInfoList [j].Framesy () + "～" + _roomInfoList [j].Frameey ());
-
 				//対象ボーダーのy座標において範囲内かどうか判定
 				if (_verticalBorderInfoList [i].Sy() <= _roomInfoList [j].Framesy () && _verticalBorderInfoList [i].Ey () >= _roomInfoList [j].Frameey ()) {
 					//境界線の右に属するかチェック
@@ -395,9 +392,6 @@ public class StageGenerator : MonoBehaviour {
 		List<struct_rooomInfo> jointRoomList_second = new List<struct_rooomInfo> ();
 
 		int targetIndex;
-
-		Debug.Log ("firstRoomCount=" + _firstRoomList.Count + ":secondRoomCount=" + _secondRoomList.Count);
-
 
 		switch (_jointSetting) {
 		case enum_JointSetting.ONE:
@@ -506,5 +500,20 @@ public class StageGenerator : MonoBehaviour {
 		stageLength = (int)_stageSize;
 	}
 
+	/// <summary>
+	/// 部屋情報をセットする
+	/// </summary>
+	private void SetRoomInfoList(){
+		stgInfo._roomInfoList = new List<StageInformation.struct_roomInfo>();
+		for(int i= 0;i<_roomInfoList.Count;i++){
+			//部屋の大きさ分ループ処理 
+			for(int z=_roomInfoList[i].Roomsy();z<_roomInfoList[i].Roomey();z++){
+				for(int x = _roomInfoList[i].Roomsx();x<_roomInfoList[i].Roomex();x++){
+					StageInformation.struct_roomInfo _thisTileInfo = new StageInformation.struct_roomInfo(i,new Vector2(x,z));
+					stgInfo._roomInfoList.Add(_thisTileInfo);
+				}
+			}
+		}
+	}
 
 }

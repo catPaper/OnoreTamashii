@@ -18,17 +18,24 @@ public class StageObjectDataBase : MonoBehaviour {
 		TYPE_C
 	}
 
+	public enum enum_CharacterType{
+		PLAYER,
+		ENEMY_A,		//いずれ名前を付ける
+		ENEMY_B
+	}
+
 	[Header("ゲーム内変更用")]
 	[SerializeField]
 	private enum_WallType _wallType;
 	[SerializeField]
 	private enum_FloorType _floorType;
-
 	[Header("事前設定項目")]
 	[SerializeField]
 	private List<GameObject> _wallList;
 	[SerializeField]
 	private List<GameObject> _floorList;
+	[SerializeField]
+	private List<GameObject> _charaList;
 
 	/// <summary>
 	/// 壁のプレファブを取得
@@ -61,6 +68,34 @@ public class StageObjectDataBase : MonoBehaviour {
 		return _floorList [(int)_floorType];
 	}
 
+	public GameObject GetCharacterPrefab(enum_CharacterType _charaType)
+	{
+		ExistCharacterCheck(_charaType);
+
+		if(!ExistCharacterType(_charaType)){
+			_charaType = enum_CharacterType.ENEMY_A;
+		}
+
+		return _charaList[(int)_charaType];
+	}
+
+	/// <summary>
+	/// 指定したキャラクタープレファブが存在するかチェック
+	/// </summary>
+	private void ExistCharacterCheck(enum_CharacterType _charaType)
+	{
+		if(!ExistCharacterType(_charaType)){
+			Debug.Log("設定したキャラは存在しません");
+		}
+	}
+
+	/// <summary>
+	/// Exists the type of the character.
+	/// </summary>
+	/// <returns><c>true</c>, if character type was existed, <c>false</c> otherwise.</returns>
+	private bool ExistCharacterType(enum_CharacterType charaType){
+		return (_charaList[(int)charaType] != null);
+	}
 
 	/// <summary>
 	/// 壁、床等の指定したオブジェクトが存在するかチェック
