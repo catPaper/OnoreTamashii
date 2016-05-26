@@ -73,6 +73,11 @@ public class StageInformation : MonoBehaviour {
 	private StageObjectDataBase _stgObjDtbs;
 	private int stageLength;
 
+	public int StageLength()
+	{
+		return stageLength;
+	}
+
 	void Start()
 	{
 		_stgObjDtbs = GameObject.FindGameObjectWithTag ("StageManager").GetComponent<StageObjectDataBase> ();
@@ -91,36 +96,7 @@ public class StageInformation : MonoBehaviour {
 		}
 	}
 
-	/// <summary>
-	/// ターゲットの座標から空いているマスを返す
-	/// </summary>
-	/// <returns>The directions.</returns>
-	/// <param name="targetPos">Target position.</param>
-	public List<Character.enum_Direction> SpaceDirections(Vector3 targetPos){
-		//座標の誤差を丸める
-		targetPos.x = Mathf.RoundToInt(targetPos.x);
-		targetPos.z = Mathf.RoundToInt(targetPos.z);
 
-		List<Character.enum_Direction> spaceDirections = new List<Character.enum_Direction>();
-		//ターゲットの全方位マス
-		Vector3 startPos = new Vector3((targetPos.x-1),targetPos.y,(targetPos.z+1));
-		for(int i= 0;i<3;i++){
-			for(int j = 0;j<3;j++){
-				//グラウンドチェック
-				if(WhatIsTheGroundType(startPos) != enum_GroundType.WALL){
-					//キャラクターチェック
-					if(WhatIsTheCharacterType(startPos) == enum_CharacterType.NULL){
-						spaceDirections.Add((Character.enum_Direction)(j+(i*3)));
-					}
-				}
-				startPos.x += 1;
-			}
-			startPos.x = targetPos.x -1;
-			startPos.z -=1;
-		}
-
-		return spaceDirections;
-	}
 
 	//キャラクターを指定方向に移動させる（リストの座標のみ）
 	public void CharacterMove(Vector3 targetPos,Character.enum_Direction targetDirection){
@@ -128,7 +104,7 @@ public class StageInformation : MonoBehaviour {
 		targetPos.x = Mathf.RoundToInt(targetPos.x);
 		targetPos.z = Mathf.RoundToInt(targetPos.z);
 		//入れ替え先座標
-		Vector3 swapPos;
+		Vector3 swapPos = new Vector3();
 		swapPos.x = targetPos.x +((int)targetDirection%3 - 1);	//（X%3-1）→これで-1,0,1になりx座標をちょうせつ　できる
 		swapPos.z = targetPos.z -((int)targetDirection/3 - 1);	// (X/3-1) →これで-1,0,1になりz座標を調節できる
 		//入れ替え
@@ -296,11 +272,31 @@ public class StageInformation : MonoBehaviour {
 	}
 
 	/// <summary>
+	/// ポジションに一致する敵キャラプレファブを返す
+	/// </summary>
+	/// <returns>The prefab.</returns>
+	/// <param name="pos">Position.</param>
+	public GameObject EnemyPrefab(Vector3 targetPos){
+		int enemyPosX;
+		int enemyPosZ;
+		for (int i = 0; i < _enemyList.Count; i++) {
+			enemyPosX = Mathf.RoundToInt (_enemyList [i].transform.position.x);
+			enemyPosZ = Mathf.RoundToInt (_enemyList [i].transform.position.z);
+			if (targetPos.x == enemyPosX && targetPos.z == enemyPosZ) {
+				return _enemyList [i];
+			}
+		}
+
+		Debug.Log ("error:Nothing to targetObject");
+		return null;
+	}
+
+	/// <summary>
 	/// 指定座標のグラウンドタイプを返す
 	/// </summary>
 	/// <returns>The is the object.</returns>
 	/// <param name="_xzPos">Xz position.</param>
-	private enum_GroundType WhatIsTheGroundType(Vector3 _xzPos){
+	public enum_GroundType WhatIsTheGroundType(Vector3 _xzPos){
 		return _groundTypeList[(int)_xzPos.x + ((int)_xzPos.z * stageLength)];
 	}
 
@@ -318,7 +314,7 @@ public class StageInformation : MonoBehaviour {
 	/// </summary>
 	/// <returns>The is the character type.</returns>
 	/// <param name="_xzPos">Xz position.</param>
-	private enum_CharacterType WhatIsTheCharacterType(Vector3 _xzPos){
+	public enum_CharacterType WhatIsTheCharacterType(Vector3 _xzPos){
 		return _characterTypeList[(int)_xzPos.x +((int)_xzPos.z*stageLength)];
 	}
 }
